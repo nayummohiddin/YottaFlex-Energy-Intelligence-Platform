@@ -1,0 +1,10 @@
+target/
+node_modules/
+dist/
+.venv/
+venv/
+__pycache__/
+.env
+data-generator/output/
+*.log
+.DS_Store

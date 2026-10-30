@@ -1,0 +1,14 @@
+import React,{useEffect,useState} from 'react';
+import {ResponsiveContainer,LineChart,Line,CartesianGrid,XAxis,YAxis,Tooltip,BarChart,Bar} from 'recharts';
+const demo=[{time:'00:00',kwh:42},{time:'04:00',kwh:37},{time:'08:00',kwh:65},{time:'12:00',kwh:82},{time:'16:00',kwh:71},{time:'20:00',kwh:95}];
+export default function App(){
+ const [summary,setSummary]=useState(null),[exceptions,setExceptions]=useState([]),[recommendations,setRecommendations]=useState([]);
+ useEffect(()=>{fetch('http://localhost:8080/api/analytics/summary').then(r=>r.json()).then(setSummary).catch(()=>setSummary({note:'Backend not connected; showing demo shell.'}));fetch('http://localhost:8080/api/analytics/exceptions').then(r=>r.json()).then(setExceptions).catch(()=>{});fetch('http://localhost:8080/api/analytics/recommendations').then(r=>r.json()).then(setRecommendations).catch(()=>{});},[]);
+ const kpis=[['Energy consumption',summary?.energyKwh??'—','kWh'],['Peak demand',summary?.peakDemandKw??'—','kW'],['Energy waste',summary?.wasteKwh??'—','kWh'],['Potential savings',summary?.potentialSavingsKwh??'—','kWh']];
+ return <main><header><div><div className="eyebrow">YOTTAFLEX / ENERGY INTELLIGENCE</div><h1>Plant energy overview</h1><p>Telemetry, production, tariffs and weather in one operational view.</p></div><span className="status">Synthetic demo data</span></header>
+ <section className="kpis">{kpis.map(([name,value,unit])=><article className="card" key={name}><small>{name}</small><strong>{value}</strong><span>{unit}</span></article>)}</section>
+ <section className="grid"><article className="card chart"><h2>Energy trend</h2><ResponsiveContainer width="100%" height={260}><LineChart data={demo}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="time"/><YAxis/><Tooltip/><Line type="monotone" dataKey="kwh" stroke="#3a8f82" strokeWidth={3}/></LineChart></ResponsiveContainer></article>
+ <article className="card chart"><h2>Demand profile</h2><ResponsiveContainer width="100%" height={260}><BarChart data={demo}><CartesianGrid strokeDasharray="3 3"/><XAxis dataKey="time"/><YAxis/><Tooltip/><Bar dataKey="kwh" fill="#6388c6"/></BarChart></ResponsiveContainer></article></section>
+ <section className="grid"><article className="card"><h2>Exceptions</h2>{exceptions.length?exceptions.map((x,i)=><p key={i}>{x.issueType||x.issue_type} — {x.entityId||x.entity_id}</p>):<p className="muted">No API exceptions returned. Load generated data and connect repository-backed analytics.</p>}</article>
+ <article className="card"><h2>Recommendations</h2>{recommendations.length?recommendations.map((x,i)=><p key={i}>{x.title} — savings {x.expectedSavingsKwh} kWh</p>):<p className="muted">Recommendations will appear with baseline, evidence, and estimated savings.</p>}</article></section>
+ <footer>{summary?.note||'Values are calculated from source telemetry. Ground-truth labels are not analytics inputs.'}</footer></main>}

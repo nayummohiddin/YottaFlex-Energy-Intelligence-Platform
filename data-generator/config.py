@@ -1,0 +1,5 @@
+SEED = 20261022
+PLANT_ID = "PLANT-001"
+PLANT_NAME = "YottaFlex Demo Plant"
+TIMEZONE = "Asia/Kolkata"
+CADENCE_MINUTES = 15
